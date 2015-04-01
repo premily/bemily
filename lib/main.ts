@@ -9,6 +9,13 @@ var userPlugin = new UserPlugin();
 
 var server = new Hapi.Server();
 
+var sessionOptions = {
+    cookieOptions: {
+        password: 'password',
+        isSecure: false
+    }
+};
+
 server.connection({ port: 3001 });
 
 
@@ -26,6 +33,11 @@ server.register({
         databaseInstance: dbInstance.db
     }
 }, userPlugin.errorInit);
+
+server.register({
+    register: require('yar'),
+    options: sessionOptions
+}, function (err) { });
 
 server.start(function () {
     console.log('Server running at:', server.info.uri);
