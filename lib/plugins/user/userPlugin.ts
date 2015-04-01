@@ -5,6 +5,9 @@ export class UserPlugin {
     Joi:any;
     Boom:any;
 
+    // quick fix for ide error of variable 'doc._id'
+    private _id:any;
+
     constructor() {
         this.register.attributes = {
             name: 'userPlugin',
@@ -23,6 +26,7 @@ export class UserPlugin {
         this.Joi = require('joi');
         this.Boom = require('boom');
 
+        // TODO adjust to origin database schema
         this.userSchema = this.Joi.object().keys({
             name: this.Joi.string().required(),
             mail: this.Joi.string().email().required()
@@ -34,7 +38,6 @@ export class UserPlugin {
             path: '/login',
             handler: (request, reply) => {
                 console.log(request.payload)
-
                 var pl = request.payload;
                 users.view('login/login', function (err, docs) {
                     reply(docs);
@@ -42,6 +45,7 @@ export class UserPlugin {
                         if (doc.name === pl.name && doc.password === pl.password) {
                             console.log('hallo', doc);
                             request.session.set('loggedInUser', doc._id);
+                            console.log(doc._id);
                         }
                     });
                 });
@@ -55,16 +59,14 @@ export class UserPlugin {
             handler: (request, reply) => {
                 console.log(request.session)
                 var userId = request.session.get('loggedInUser');
-
                 users.get(userId, function (err, doc) {
                     reply(doc);
                 });
-
             }
         });
 
         // update only a few fields of the current user
-        // TODO: speichert auch neues Dokument, wenn sich nichts geändert hat
+        // TODO: speichert auch neue revision, wenn sich nichts geändert hat
         server.route({
             method: 'POST',
             path: '/me',
@@ -99,6 +101,7 @@ export class UserPlugin {
                         reply(errResponse.output);
                     } else {
                         console.log(value);
+                        // TODO: check if all information for new user is committed.
                         users.save(value, (err, res)=> {
                             if (err) {
                                 return reply(this.Boom.wrap(err));
