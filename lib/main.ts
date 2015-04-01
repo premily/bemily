@@ -1,9 +1,9 @@
 /// <reference path="../typings/hapi/hapi.d.ts" />
 var Hapi = require('hapi');
 
-// TEST
+// example to call plugin
 var DatabasePlugin = require('./plugins/database/databasePlugin').DatabasePlugin;
-var database = new DatabasePlugin("http://localhost:5984", "test");
+var database = new DatabasePlugin("http://localhost:5984", "mydatabase");
 
 var server = new Hapi.Server();
 server.connection({ port: 3000 });
