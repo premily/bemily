@@ -2,8 +2,8 @@
 var Hapi = require('hapi');
 
 // TEST
-import User = require('./user/userservice');
-var db = new User.UserService("http://localhost:5984", "test");
+var DatabasePlugin = require('./plugins/database/databasePlugin').DatabasePlugin;
+var database = new DatabasePlugin("http://localhost:5984", "test");
 
 var server = new Hapi.Server();
 server.connection({ port: 3000 });
@@ -15,6 +15,13 @@ server.route({
         reply('Hello, emily!');
     }
 });
+
+server.register({
+    register: database,
+    options: {
+        sampleOption: "sample"
+    }
+}, database.errorInit);
 
 server.start(function () {
     console.log('Server running at:', server.info.uri);
