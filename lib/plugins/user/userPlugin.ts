@@ -1,9 +1,9 @@
 export class UserPlugin {
     register:any;
     databaseInstance:any;
+    userSchema:any;
     Joi:any;
     Boom:any;
-    userSchema:any;
 
     constructor() {
         this.register.attributes = {
@@ -25,9 +25,10 @@ export class UserPlugin {
 
         this.userSchema = this.Joi.object().keys({
             name: this.Joi.string().required(),
-            mail: this.Joi.string().email()
+            mail: this.Joi.string().email().required()
         });
 
+        // login and create a session
         server.route({
             method: 'POST',
             path: '/login',
@@ -47,6 +48,7 @@ export class UserPlugin {
             }
         });
 
+        // get information about current user from session
         server.route({
             method: 'GET',
             path: '/me',
@@ -61,20 +63,20 @@ export class UserPlugin {
             }
         });
 
+        // update only a few fields of the current user
+        // TODO: speichert auch neues Dokument, wenn sich nichts geändert hat
         server.route({
             method: 'POST',
             path: '/me',
             handler: (request, reply) => {
-               // console.log(request.payload)
                 var userId = request.session.get('loggedInUser');
                 this.Joi.validate(request.payload, this.userSchema, (err, value)=> {
-                   //console.log(value);
-                    if(err) {
+                    if (err) {
                         var errResponse = this.Boom.wrap(err, 400, err.details.message);
                         reply(errResponse.output);
                     } else {
-                        users.merge(userId, value, function(err, value) {
-                            if(err) {
+                        users.merge(userId, value, function (err, value) {
+                            if (err) {
                                 return reply(this.Boom.wrap(err));
                             }
                             reply({statusCode: 200});
@@ -82,9 +84,33 @@ export class UserPlugin {
                         });
                     }
                 });
-
             }
         });
+
+        // create new user
+        // TODO: aktuell werden user auch doppelt erstellt
+        server.route({
+            method: 'POST',
+            path: '/createUser',
+            handler: (request, reply) => {
+                this.Joi.validate(request.payload, this.userSchema, (err, value)=> {
+                    if (err) {
+                        var errResponse = this.Boom.wrap(err, 400, err.details.message);
+                        reply(errResponse.output);
+                    } else {
+                        console.log(value);
+                        users.save(value, (err, res)=> {
+                            if (err) {
+                                return reply(this.Boom.wrap(err));
+                            }
+                            reply({statusCode: 200});
+                            console.log(arguments);
+                        });
+                    }
+                });
+            }
+        });
+
         next();
     }
 
