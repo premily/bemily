@@ -6,16 +6,17 @@ export class DatabasePlugin {
     dbInstance:any;
 
     constructor(dbUrl:string, dbName:string) {
+        this.dbUrl = dbUrl;
+        this.dbName = dbName;
+        this.nano = require('nano')(this.dbUrl);
         this.register.attributes = {
             name: 'database',
             version: '1.0.0'
         };
-        this.dbUrl = dbUrl;
-        this.dbName = dbName;
-        this.nano = require('nano')(this.dbUrl);
+
+        this.createDatabase();
+        this.openDatabase();
     }
-
-
 
     createDatabase() {
         this.nano.db.create(this.dbName, function(err, body){
@@ -33,13 +34,13 @@ export class DatabasePlugin {
     }
 
 
-
+    /* plugin registration */
     register(server, options, next) {
         server.route({
             method: 'GET',
-            path: '/timi',
+            path: '/get/{any}',
             handler:  (request, reply) => {
-                reply('hello '+ options.sampleOption);
+                reply(options.sampleOption + ': get '+ request.params.any);
             }
         });
 
