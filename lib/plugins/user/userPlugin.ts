@@ -67,7 +67,7 @@ export class UserPlugin {
             handler: (request, reply) => {
                 console.log(request.session)
                 var userId = request.session.get('loggedInUser');
-                users.get(userId, function (err, doc) {
+                users.get(userId, function (err, doc:User) {
                     reply(doc);
                 });
             }
@@ -80,7 +80,7 @@ export class UserPlugin {
             path: '/me',
             handler: (request, reply) => {
                 var userId = request.session.get('loggedInUser');
-                this.Joi.validate(request.payload, this.userSchema, (err, value)=> {
+                this.Joi.validate(request.payload, this.userSchema, (err, value:User)=> {
                     if (err) {
                         var errResponse = this.Boom.wrap(err, 400, err.details.message);
                         reply(errResponse.output);
@@ -103,7 +103,7 @@ export class UserPlugin {
             method: 'POST',
             path: '/createUser',
             handler: (request, reply) => {
-                this.Joi.validate(request.payload, this.userSchema, (err, value)=> {
+                this.Joi.validate(request.payload, this.userSchema, (err, value:User)=> {
                     if (err) {
                         var errResponse = this.Boom.wrap(err, 400, err.details.message);
                         reply(errResponse.output);
