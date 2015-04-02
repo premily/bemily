@@ -5,7 +5,10 @@ var DatabaseService = require('./database/databaseService');
 var dbInstance = new DatabaseService.DatabaseService();
 
 var UserPlugin = require('./plugins/user/userPlugin').UserPlugin;
+var GroupPlugin = require('./plugins/group/groupPlugin').GroupPlugin;
+
 var userPlugin = new UserPlugin();
+var groupPlugin = new GroupPlugin();
 
 var server = new Hapi.Server();
 
@@ -27,12 +30,22 @@ server.route({
     }
 });
 
+// register user plugin
 server.register({
     register: userPlugin,
     options: {
         databaseInstance: dbInstance.db
     }
 }, userPlugin.errorInit);
+
+// register group plugin
+server.register({
+    register: groupPlugin,
+    options: {
+        databaseInstance: dbInstance.db
+    }
+}, groupPlugin.errorInit);
+
 
 server.register({
     register: require('yar'),
