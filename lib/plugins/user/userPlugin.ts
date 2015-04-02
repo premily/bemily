@@ -22,6 +22,16 @@ export class UserPlugin {
             name: 'userPlugin',
             version: '1.0.0'
         };
+        this.Joi = require('joi');
+        this.Boom = require('boom');
+        this.initSchema();
+    }
+
+    initSchema() {
+        this.userSchema = this.Joi.object().keys({
+            name: this.Joi.string().required(),
+            mail: this.Joi.string().email().required()
+        });
 
     }
 
@@ -30,16 +40,7 @@ export class UserPlugin {
             throw new Error('options.databaseInstance needs to be defined');
         }
         this.databaseInstance = options.databaseInstance;
-        var users = this.databaseInstance.database('app');
-
-        this.Joi = require('joi');
-        this.Boom = require('boom');
-
-        // TODO adjust to origin database schema
-        this.userSchema = this.Joi.object().keys({
-            name: this.Joi.string().required(),
-            mail: this.Joi.string().email().required()
-        });
+        var db = this.databaseInstance.database('app');
 
         // login and create a session
         server.route({
@@ -48,7 +49,7 @@ export class UserPlugin {
             handler: (request, reply) => {
                 console.log(request.payload)
                 var pl = request.payload;
-                users.view('login/login', function (err, docs:User[]) {
+                db.view('login/login', function (err, docs:User[]) {
                     reply(docs);
                     docs.forEach(doc => {
                         if (doc.name === pl.name && doc.password === pl.password) {
@@ -67,7 +68,7 @@ export class UserPlugin {
             handler: (request, reply) => {
                 console.log(request.session)
                 var userId = request.session.get('loggedInUser');
-                users.get(userId, function (err, doc:User) {
+                db.get(userId, function (err, doc:User) {
                     reply(doc);
                 });
             }
@@ -75,6 +76,7 @@ export class UserPlugin {
 
         // update only a few fields of the current user
         // TODO: speichert auch neue revision, wenn sich nichts geändert hat
+        // TODO: deshalb sollte zuerst geprüft werden ob sich was geändert hat
         server.route({
             method: 'POST',
             path: '/me',
@@ -85,7 +87,7 @@ export class UserPlugin {
                         var errResponse = this.Boom.wrap(err, 400, err.details.message);
                         reply(errResponse.output);
                     } else {
-                        users.merge(userId, value, function (err, value) {
+                        db.merge(userId, value, function (err, value) {
                             if (err) {
                                 return reply(this.Boom.wrap(err));
                             }
@@ -110,7 +112,7 @@ export class UserPlugin {
                     } else {
                         console.log(value);
                         // TODO: check if all information for new user is committed.
-                        users.save(value, (err, res)=> {
+                        db.save(value, (err, res)=> {
                             if (err) {
                                 return reply(this.Boom.wrap(err));
                             }
