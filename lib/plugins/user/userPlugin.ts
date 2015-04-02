@@ -17,9 +17,6 @@ export class UserPlugin {
     Joi:any;
     Boom:any;
 
-    // quick fix for ide error of variable 'doc._id'
-    private _id:any;
-
     constructor() {
         this.register.attributes = {
             name: 'userPlugin',
@@ -51,13 +48,12 @@ export class UserPlugin {
             handler: (request, reply) => {
                 console.log(request.payload)
                 var pl = request.payload;
-                users.view('login/login', function (err, docs) {
+                users.view('login/login', function (err, docs:User[]) {
                     reply(docs);
                     docs.forEach(doc => {
                         if (doc.name === pl.name && doc.password === pl.password) {
                             console.log('hallo', doc);
                             request.session.set('loggedInUser', doc._id);
-                            console.log(doc._id);
                         }
                     });
                 });
