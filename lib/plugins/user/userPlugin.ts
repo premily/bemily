@@ -1,3 +1,15 @@
+export interface User {
+    _id: string;
+    name: string;
+    surname: string;
+    mail: string;
+    password: string;
+    username: string;
+    major: string;
+    semester: number;
+    subscribed_groups: string[];
+}
+
 export class UserPlugin {
     register:any;
     databaseInstance:any;
