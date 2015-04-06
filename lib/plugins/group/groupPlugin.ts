@@ -14,6 +14,9 @@ export class GroupPlugin {
     }
 
     register:IRegister = (server, options, next) => {
+        server.bind(this);
+        this._register(server, options);
+
         if (!options.databaseInstance) {
             throw new Error('options.databaseInstance needs to be defined');
         }
