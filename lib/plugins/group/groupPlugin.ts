@@ -1,5 +1,9 @@
+export interface IRegister {
+    (server:any, options:any, next:any): void;
+    attributes?: any;
+}
+
 export class GroupPlugin {
-    register:any;
     databaseInstance:any;
 
     constructor() {
@@ -9,8 +13,7 @@ export class GroupPlugin {
         };
     }
 
-    register(server, options, next) {
-        // TODO: refactor -> duplicate code as in user plugin
+    register:IRegister = (server, options, next) => {
         if (!options.databaseInstance) {
             throw new Error('options.databaseInstance needs to be defined');
         }
@@ -25,8 +28,8 @@ export class GroupPlugin {
             handler: (request, reply) => {
                 var userId = request.session.get('loggedInUser');
                 // TODO: doc param -> interface User
-                db.get(userId, function (err, doc) {
-                    reply(doc.subscribed_groups);
+                db.get(userId, function (err, docs) {
+                    reply(docs.subscribed_groups);
                 });
             }
         });
@@ -37,6 +40,11 @@ export class GroupPlugin {
         if (err) {
             console.log('Failed to load plugin:', err);
         }
+    }
+
+    private _register(server, options) {
+        // Register
+        return 'register';
     }
 
 }
