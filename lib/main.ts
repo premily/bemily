@@ -48,6 +48,7 @@ server.register({
 
 
 server.register({
+    // needed for cookies for Hapi
     register: require('yar'),
     options: sessionOptions
 }, function (err) { });

@@ -75,8 +75,8 @@ export class UserPlugin {
         });
 
         // update only a few fields of the current user
-        // TODO: speichert auch neue revision, wenn sich nichts geändert hat
-        // TODO: deshalb sollte zuerst geprüft werden ob sich was geändert hat
+        // TODO: speichert auch neue revision, wenn sich nichts geÃ¤ndert hat
+        // TODO: deshalb sollte zuerst geprÃ¼ft werden ob sich was geÃ¤ndert hat
         server.route({
             method: 'POST',
             path: '/me',
@@ -100,7 +100,7 @@ export class UserPlugin {
         });
 
         // create new user
-        // TODO: aktuell werden user auch doppelt erstellt
+        // FIXME: aktuell werden user auch doppelt erstellt
         server.route({
             method: 'POST',
             path: '/createUser',
