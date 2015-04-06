@@ -1,3 +1,8 @@
+export interface IRegister {
+    (server:any, options:any, next:any): void;
+    attributes?: any;
+}
+
 export interface User {
     _id: string;
     name: string;
@@ -11,7 +16,6 @@ export interface User {
 }
 
 export class UserPlugin {
-    register:any;
     databaseInstance:any;
     userSchema:any;
     Joi:any;
@@ -35,7 +39,10 @@ export class UserPlugin {
 
     }
 
-    register(server, options, next) {
+    register:IRegister = (server, options, next) => {
+        server.bind(this);
+        this._register(server, options);
+
         if (!options.databaseInstance) {
             throw new Error('options.databaseInstance needs to be defined');
         }
@@ -131,7 +138,12 @@ export class UserPlugin {
         if (err) {
             console.log('Failed to load plugin:', err);
         }
-
     }
+
+    private _register(server, options) {
+        // Register
+        return 'register';
+    }
+
 
 }
